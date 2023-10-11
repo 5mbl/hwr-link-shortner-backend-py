@@ -5,7 +5,6 @@
 __pycache__
 
 # Virtual Environment
-venv/
 env/
 
 # Flask specific
