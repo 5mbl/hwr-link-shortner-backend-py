@@ -34,3 +34,4 @@ toml==0.10.2
 urllib3==1.26.17
 websockets
 Werkzeug
+gunicorn
