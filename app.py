@@ -7,7 +7,7 @@ import os
 
 # Stellen Sie sicher, dass Sie die richtigen Pfade und Origin-Domains angeben.
 app = Flask(__name__)
-#CORS(app, resources={r"/shorten_url": {"origins": "http://localhost:3000"}})
+# CORS(app, resources={r"/shorten_url": {"origins": "http://localhost:3000"}})
 
 
 load_dotenv()
@@ -70,21 +70,22 @@ def get_originial_url(short_id):
 
 # REDIRECT SERVICE
 @app.route('/<short_id>', methods=['GET'])
-def redirect_to_originial_url(short_id):
-    fetched_data = supabase.table('links').select(
-        'original_url', 'click_count').eq('id', short_id).execute()
+def redirect_to_original_url(short_id):
+    try:
+        fetched_data = supabase.table('links').select(
+            'original_url').eq('id', short_id).execute()
 
-    if fetched_data['data']:
-        original_url = fetched_data['data'][0]['original_url']
-        click_count = fetched_data['data'][0]['click_count']
-
-        new_click_count = click_count + 1
-        supabase.table('links').update(
-            {'click_count': new_click_count}).eq('id', short_id).execute()
-
-        if original_url.startswith("http://") or original_url.startswith("https://"):
-            return redirect(original_url)
+        if fetched_data['data']:
+            original_url = fetched_data['data'][0].get('original_url')
+            if original_url:
+                if original_url.startswith("http://") or original_url.startswith("https://"):
+                    return redirect(original_url)
+                else:
+                    return redirect("https://" + original_url)
+            else:
+                return 'URL not found', 404
         else:
-            return redirect("https://" + original_url)
-    else:
-        return 'URL not found', 404
+            return 'URL not found', 404
+    except Exception as e:
+        print(f"Error: {e}")  # Log the error for debugging
+        return 'Internal Server Error', 500
