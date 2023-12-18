@@ -7,7 +7,7 @@ import os
 
 # Stellen Sie sicher, dass Sie die richtigen Pfade und Origin-Domains angeben.
 app = Flask(__name__)
-CORS(app, resources={r"/shorten_url": {"origins": "http://localhost:3000"}})
+#CORS(app, resources={r"/shorten_url": {"origins": "http://localhost:3000"}})
 
 
 load_dotenv()
