@@ -71,18 +71,22 @@ def get_originial_url(short_id):
 # REDIRECT SERVICE
 @app.route('/<short_id>', methods=['GET'])
 def redirect_to_original_url(short_id):
+    fetched_data = supabase.table('links').select(
+        'count_clicks').eq('id', short_id).execute()
+
+    click_count = fetched_data['data'][0].get('count_clicks')
+    print(click_count)
+    new_click_count = click_count + 1
+    supabase.table('links').update(
+        {'count_clicks': new_click_count}).eq('id', short_id).execute()
+
     try:
         # Fetch original_url and click_count from Supabase
         fetched_data = supabase.table('links').select(
-            'original_url', 'click_count').eq('id', short_id).execute()
+            'original_url', 'count_clicks').eq('id', short_id).execute()
 
         if fetched_data['data']:
             original_url = fetched_data['data'][0].get('original_url')
-            click_count = fetched_data['data'][0].get('click_count')
-
-            new_click_count = click_count + 1
-            supabase.table('links').update(
-                {'click_count': new_click_count}).eq('id', short_id).execute()
 
             # Redirect to the original URL
             if original_url:
