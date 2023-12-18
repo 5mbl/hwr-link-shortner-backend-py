@@ -73,12 +73,20 @@ def get_originial_url(short_id):
 def redirect_to_originial_url(short_id):
     # Fetch original_url from Supabase
     fetched_data = supabase.table('links').select(
-        'original_url').eq('id', short_id).execute()
+        'original_url', 'click_count').eq('id', short_id).execute()
 
     # print("fetched data: ", fetched_data) # This is for debugging
     original_url = fetched_data['data'][0]['original_url']
-    # print(original_url) # This is for debugging
+    click_count = fetched_data['data'][0]['click_count']
 
+    # Increment click count and update in database
+    new_click_count = click_count + 1
+
+    supabase.table('links').update(
+        {'click_count': new_click_count}
+    ).eq('id', short_id).execute()
+
+    # redirect to orginal url
     if original_url:
         if original_url.startswith("https://"):
             return redirect(original_url)
