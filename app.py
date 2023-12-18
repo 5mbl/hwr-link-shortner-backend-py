@@ -73,7 +73,7 @@ def get_originial_url(short_id):
 def redirect_to_originial_url(short_id):
     # Fetch original_url from Supabase
     fetched_data = supabase.table('links').select(
-        'original_url', 'click_count').eq('id', short_id).execute()
+        'original_url').eq('id', short_id).execute()
 
     # print("fetched data: ", fetched_data) # This is for debugging
     original_url = fetched_data['data'][0]['original_url']
