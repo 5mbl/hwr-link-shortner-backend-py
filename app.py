@@ -72,11 +72,20 @@ def get_originial_url(short_id):
 @app.route('/<short_id>', methods=['GET'])
 def redirect_to_original_url(short_id):
     try:
+        # Fetch original_url and click_count from Supabase
         fetched_data = supabase.table('links').select(
-            'original_url').eq('id', short_id).execute()
+            'original_url', 'click_count').eq('id', short_id).execute()
 
         if fetched_data['data']:
             original_url = fetched_data['data'][0].get('original_url')
+            click_count = fetched_data['data'][0].get('click_count', 0)
+
+            # Increment click count
+            new_click_count = click_count + 1
+            supabase.table('links').update(
+                {'click_count': new_click_count}).eq('id', short_id).execute()
+
+            # Redirect to the original URL
             if original_url:
                 if original_url.startswith("http://") or original_url.startswith("https://"):
                     return redirect(original_url)
