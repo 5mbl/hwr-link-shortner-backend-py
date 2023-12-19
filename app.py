@@ -68,7 +68,7 @@ def get_originial_url(short_id):
         return jsonify({"message": "URL not found"}), 400
 
 
-# REDIRECT SERVICE-2
+# REDIRECT SERVICE
 @app.route('/<short_id>', methods=['GET'])
 def redirect_to_original_url(short_id):
     try:
@@ -113,3 +113,30 @@ def redirect_to_original_url(short_id):
     except Exception as e:
         print(f"Error: {e}")  # Log the error for debugging
         return 'Internal Server Error', 500
+
+
+@app.route('/get/clicks/<short_id>', methods=['GET'])
+def get_click_count(short_id):
+    try:
+        # Convert short_id to the correct type (e.g., integer)
+        short_id_value = int(short_id)
+        short_id_str = str(short_id_value)
+
+        # Fetch the current click count
+        fetched_data = supabase.table('links').select(
+            'count_clicks').eq('id', short_id_str).execute()
+
+        if fetched_data.get('data'):
+            # Extract the click count
+            click_count = fetched_data['data'][0].get('count_clicks', 0)
+
+            # Return the click count as JSON
+            return jsonify({"clickCount": click_count})
+        else:
+            return jsonify({"error": "URL not found"}), 404
+
+    except ValueError:
+        return jsonify({"error": "Bad Request - Invalid ID"}), 400
+    except Exception as e:
+        print(f"Error: {e}")  # Log the error for debugging
+        return jsonify({"error": "Internal Server Error"}), 500
