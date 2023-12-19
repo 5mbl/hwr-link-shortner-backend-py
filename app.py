@@ -68,36 +68,48 @@ def get_originial_url(short_id):
         return jsonify({"message": "URL not found"}), 400
 
 
-# REDIRECT SERVICE
+# REDIRECT SERVICE-2
 @app.route('/<short_id>', methods=['GET'])
 def redirect_to_original_url(short_id):
-    fetched_data = supabase.table('links').select(
-        'count_clicks').eq('id', short_id).execute()
-
-    click_count = fetched_data['data'][0].get('count_clicks')
-    print(click_count)
-    new_click_count = click_count + 1
-    supabase.table('links').update(
-        {'count_clicks': new_click_count}).eq('id', short_id).execute()
-
     try:
-        # Fetch original_url and click_count from Supabase
+        # Convert short_id to the correct type (e.g., integer)
+        short_id_value = int(short_id)
+        short_id_str = str(short_id_value)
+
+        # Fetch the current click count and original_url
         fetched_data = supabase.table('links').select(
-            'original_url', 'count_clicks').eq('id', short_id).execute()
+            'original_url', 'count_clicks').eq('id', short_id_str).execute()
 
-        if fetched_data['data']:
-            original_url = fetched_data['data'][0].get('original_url')
+        if fetched_data.get('data'):
+            data_row = fetched_data['data'][0]
+            click_count = data_row.get('count_clicks', 0)
+            original_url = data_row.get('original_url')
 
-            # Redirect to the original URL
+            # Check if original_url is present
             if original_url:
-                if original_url.startswith("http://") or original_url.startswith("https://"):
-                    return redirect(original_url)
-                else:
-                    return redirect("https://" + original_url)
+                # Increment the click count
+                new_click_count = click_count + 1
+
+                # Using upsert to update the click count
+                upsert_data = {
+                    'id': short_id_value,
+                    'original_url': original_url,
+                    'count_clicks': new_click_count
+                }
+                response = supabase.table('links').insert(
+                    upsert_data, upsert=True).execute()
+
+                print("Upsert Response:", response)
+
+                # Redirect to the original URL
+                return redirect(original_url if original_url.startswith(("http://", "https://")) else f"https://{original_url}")
             else:
                 return 'URL not found', 404
         else:
             return 'URL not found', 404
+
+    except ValueError:
+        return 'Bad Request', 400
     except Exception as e:
         print(f"Error: {e}")  # Log the error for debugging
         return 'Internal Server Error', 500
