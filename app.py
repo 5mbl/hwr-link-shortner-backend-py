@@ -7,7 +7,12 @@ import os
 
 # Stellen Sie sicher, dass Sie die richtigen Pfade und Origin-Domains angeben.
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+allowed_origins = [
+    "http://localhost:3000",  # Local development
+    "https://hwr-link-frontend.vercel.app/",    # Production domain
+    "https://frontend.hwr.link"  # Another allowed domain
+]
+CORS(app, resources={r"/*": {"origins": allowed_origins}})
 
 
 load_dotenv()
