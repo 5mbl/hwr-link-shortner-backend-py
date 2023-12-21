@@ -152,7 +152,7 @@ def get_live_urls():
     try:
         # Fetch all URL data from the Supabase table
         fetched_data = supabase.table('links').select(
-            'original_url, short_url').execute()
+            'original_url, id').execute()
 
         if fetched_data.get('data'):
             # Return the list of URLs
