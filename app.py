@@ -140,3 +140,21 @@ def get_click_count(short_id):
     except Exception as e:
         print(f"Error: {e}")  # Log the error for debugging
         return jsonify({"error": "Internal Server Error"}), 500
+
+
+@app.route('/get/live_urls')
+def get_live_urls():
+    try:
+        # Fetch all URL data from the Supabase table
+        fetched_data = supabase.table('links').select(
+            'original_url, short_url').execute()
+
+        if fetched_data.get('data'):
+            # Return the list of URLs
+            return jsonify(fetched_data['data'])
+        else:
+            return jsonify({"error": "No URLs found"}), 404
+
+    except Exception as e:
+        print(f"Error: {e}")  # Log the error for debugging
+        return jsonify({"error": "Internal Server Error"}), 500
