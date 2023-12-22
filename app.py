@@ -9,10 +9,12 @@ import os
 app = Flask(__name__)
 allowed_origins = [
     "http://localhost:3000",  # Local development
-    "https://hwr-link-frontend.vercel.app/",    # Production domain
+    # Production domain https://hwr-link-frontend.vercel.app/
+    "https://hwr-link-frontend.vercel.app/",
     "https://frontend.hwr.link"  # Another allowed domain
 ]
-CORS(app, resources={r"/*": {"origins": allowed_origins}})
+CORS(app, resources={
+     r"/*": {"origins": "https://hwr-link-frontend.vercel.app/"}})
 
 
 load_dotenv()
